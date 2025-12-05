@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Preprocessing Decision Tree</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .poster {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 1000px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .node {
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            min-width: 300px;
+        }
+
+        .node:hover {
+            transform: translateY(-5px);
+        }
+
+        .start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.3em;
+        }
+
+        .question {
+            background: #ffd93d;
+            color: #2d3748;
+            border: 3px solid #f6ad55;
+            font-size: 1.2em;
+            position: relative;
+        }
+
+        .question::before {
+            content: "?";
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2em;
+            color: #f6ad55;
+            font-weight: bold;
+        }
+
+        .action {
+            background: #48bb78;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .action-bad {
+            background: #f56565;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .arrow {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .branch-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .branch-label {
+            background: #4299e1;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .sub-question {
+            background: #feebc8;
+            color: #2d3748;
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 2px solid #f6ad55;
+            font-weight: bold;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .legend {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .legend h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .legend-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .example-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: #edf2f7;
+            border-radius: 15px;
+            border-left: 5px solid #48bb78;
+        }
+
+        .example-box h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .example-item {
+            margin: 10px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .example-item strong {
+            color: #667eea;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .poster {
+                box-shadow: none;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="poster">
+        <div class="header">
+            <h1>🔧 Data Preprocessing Decision Tree</h1>
+            <p>A step-by-step guide to cleaning your data</p>
+        </div>
+
+        <div class="flowchart">
+            <!-- Start -->
+            <div class="node start">
+                START: You have raw data
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <!-- First Question -->
+            <div class="node question">
+                Do you have missing values?
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <!-- Branch into YES and NO -->
+            <div class="branch-container">
+                <!-- YES Branch -->
+                <div class="branch">
+                    <div class="branch-label">YES - Missing Data</div>
+                    <div class="arrow">↓</div>
+                    <div class="sub-question">
+                        Is more than 50% missing?
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div style="display: flex; gap: 20px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                            <div class="branch-label" style="background: #f56565; font-size: 0.9em;">YES (>50%)</div>
+                            <div class="arrow" style="font-size: 2em;">↓</div>
+                            <div class="node action-bad" style="min-width: 150px; font-size: 0.95em;">
+                                DROP the column
+                            </div>
+                        </div>
+                        
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                            <div class="branch-label" style="background: #48bb78; font-size: 0.9em;">NO (<50%)</div>
+                            <div class="arrow" style="font-size: 2em;">↓</div>
+                            <div class="node action" style="min-width: 150px; font-size: 0.95em;">
+                                FILL values
+                                <div style="font-size: 0.8em; margin-top: 8px; font-weight: normal;">
+                                    Numbers: median<br>
+                                    Categories: mode
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NO Branch -->
+                <div class="branch">
+                    <div class="branch-label" style="background: #48bb78;">NO - Data Complete</div>
+                    <div class="arrow">↓</div>
+                    <div class="sub-question">
+                        Continue to next step
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <!-- Second Question -->
+            <div class="node question">
+                Do you have text/categorical data?
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <!-- Text/Categorical Branch -->
+            <div class="branch-container">
+                <div class="branch">
+                    <div class="branch-label">2 Categories (Binary)</div>
+                    <div class="arrow">↓</div>
+                    <div class="node action">
+                        Simple Mapping
+                        <div style="font-size: 0.85em; margin-top: 8px; font-weight: normal;">
+                            Example: female→0, male→1
+                        </div>
+                    </div>
+                </div>
+
+                <div class="branch">
+                    <div class="branch-label">3+ Categories</div>
+                    <div class="arrow">↓</div>
+                    <div class="node action">
+                        One-Hot Encoding
+                        <div style="font-size: 0.85em; margin-top: 8px; font-weight: normal;">
+                            Create separate columns<br>
+                            for each category
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <!-- Feature Engineering -->
+            <div class="node question">
+                Can you create new useful features?
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="node action">
+                Feature Engineering
+                <div style="font-size: 0.85em; margin-top: 8px; font-weight: normal;">
+                    Combine existing features to create new insights<br>
+                    Example: SibSp + Parch + 1 = FamilySize
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <!-- Final -->
+            <div class="node start">
+                ✓ CLEAN DATA - READY FOR ML!
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>📚 Legend</h3>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #ffd93d; border: 2px solid #f6ad55;"></div>
+                <span><strong>Yellow:</strong> Decision point - ask yourself a question</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #48bb78;"></div>
+                <span><strong>Green:</strong> Good action - do this!</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #f56565;"></div>
+                <span><strong>Red:</strong> Destructive action - only when necessary</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #4299e1;"></div>
+                <span><strong>Blue:</strong> Path label - which way to go</span>
+            </div>
+        </div>
+
+        <!-- Examples -->
+        <div class="example-box">
+            <h3>💡 Titanic Dataset Examples</h3>
+            <div class="example-item">
+                <strong>Age (177 missing, 20%):</strong> Fill with median (28 years) ✓
+            </div>
+            <div class="example-item">
+                <strong>Cabin (687 missing, 77%):</strong> Drop the column ✗
+            </div>
+            <div class="example-item">
+                <strong>Embarked (2 missing, 0.2%):</strong> Fill with mode ('S') ✓
+            </div>
+            <div class="example-item">
+                <strong>Sex (text):</strong> Map to numbers → female=0, male=1 ✓
+            </div>
+            <div class="example-item">
+                <strong>Embarked (3 categories):</strong> One-hot encode → Embarked_C, Embarked_Q, Embarked_S ✓
+            </div>
+            <div class="example-item">
+                <strong>Feature Engineering:</strong> Create FamilySize = SibSp + Parch + 1 ✓
+            </div>
+        </div>
+    </div>
+</body>
+</html>
